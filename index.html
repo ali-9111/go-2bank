@@ -1,0 +1,1615 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>G02bank — Mobile Banking </title>
+    <meta name="description" content=" mobile banking interface." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg0: #070a16;
+        --bg1: #0b1020;
+        --panel: rgba(255, 255, 255, 0.07);
+        --panel2: rgba(255, 255, 255, 0.04);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.68);
+        --muted2: rgba(255, 255, 255, 0.56);
+        --line: rgba(255, 255, 255, 0.12);
+        --shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+        --good: #2ee59d;
+        --bad: #ff6b6b;
+        --accent: #7c88ff;
+        --accent2: #2ad6ff;
+        --radius: 18px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        color: var(--text);
+        background: radial-gradient(1200px 820px at 15% -5%, rgba(124, 136, 255, 0.35), transparent 60%),
+          radial-gradient(900px 700px at 90% 10%, rgba(42, 214, 255, 0.18), transparent 55%),
+          linear-gradient(180deg, var(--bg1), var(--bg0));
+        overflow-x: hidden;
+      }
+
+      .bg {
+        position: fixed;
+        inset: -50px;
+        pointer-events: none;
+        background: radial-gradient(500px 360px at 15% 90%, rgba(46, 229, 157, 0.13), transparent 60%),
+          radial-gradient(520px 380px at 85% 80%, rgba(255, 107, 214, 0.12), transparent 60%);
+        filter: blur(18px);
+        animation: float 9s ease-in-out infinite alternate;
+        transform: translateZ(0);
+      }
+
+      .container {
+        width: min(1200px, calc(100% - 44px));
+        margin: 0 auto;
+        padding: 26px 0 24px;
+      }
+
+      .card {
+        background: linear-gradient(180deg, var(--panel), var(--panel2));
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(12px);
+      }
+
+      .row {
+        display: grid;
+        gap: 16px;
+      }
+      .row.cols-2 {
+        grid-template-columns: 1.25fr 0.75fr;
+      }
+      .row.cols-3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .logo {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        background: radial-gradient(12px 12px at 28% 30%, rgba(255, 255, 255, 0.8), transparent 60%),
+          radial-gradient(18px 14px at 62% 48%, rgba(42, 214, 255, 0.9), transparent 70%),
+          linear-gradient(135deg, var(--accent), var(--accent2));
+        box-shadow: 0 14px 34px rgba(124, 136, 255, 0.22);
+      }
+
+      .title {
+        font-weight: 800;
+        letter-spacing: 0.2px;
+      }
+
+      .subtitle {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      /* Mobile app frame + navigation */
+      .phone-wrap {
+        min-height: 100%;
+        display: grid;
+        place-items: stretch;
+        padding: 0;
+      }
+      .phone {
+        width: 100%;
+        min-height: 100vh;
+        border-radius: 0;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        overflow: hidden;
+        position: relative;
+      }
+      .phone::before {
+        content: none;
+      }
+      .app {
+        min-height: 100vh;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+      }
+
+      .appbar {
+        padding: 18px 18px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .brandbar {
+        display: grid;
+        grid-template-columns: 40px 1fr 40px;
+        align-items: center;
+        padding: 14px 18px 10px;
+      }
+      .brandbar .center {
+        display: grid;
+        place-items: center;
+      }
+      .brandimg {
+        height: 22px;
+        width: auto;
+        filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.35));
+      }
+      .appbar .left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+      .avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: radial-gradient(16px 14px at 30% 30%, rgba(255, 255, 255, 0.8), transparent 60%),
+          linear-gradient(135deg, rgba(124, 136, 255, 0.8), rgba(46, 229, 157, 0.65));
+        box-shadow: 0 14px 36px rgba(124, 136, 255, 0.18);
+        flex: 0 0 auto;
+      }
+      .hello {
+        min-width: 0;
+      }
+      .hello .greet {
+        font-weight: 800;
+        letter-spacing: 0.2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .hello .small {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .iconbtn {
+        width: 40px;
+        height: 40px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.05);
+        display: grid;
+        place-items: center;
+        color: rgba(255, 255, 255, 0.86);
+        cursor: pointer;
+        transition: transform 0.14s ease, background 0.18s ease;
+        user-select: none;
+      }
+      .iconbtn:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .iconbtn:active {
+        transform: translateY(0px) scale(0.99);
+      }
+
+      .pages {
+        padding: 0 18px 12px;
+      }
+      .page {
+        display: none;
+        animation: liftIn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      }
+      .page.active {
+        display: block;
+      }
+
+      .balance-card {
+        border-radius: 22px;
+        padding: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: radial-gradient(260px 180px at 20% 20%, rgba(42, 214, 255, 0.16), transparent 65%),
+          radial-gradient(280px 200px at 80% 30%, rgba(124, 136, 255, 0.22), transparent 65%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.05));
+        box-shadow: 0 22px 56px rgba(0, 0, 0, 0.45);
+      }
+      .balance-label {
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.2px;
+      }
+      .balance-amt {
+        margin-top: 8px;
+        font-size: 34px;
+        font-weight: 900;
+        letter-spacing: 0.3px;
+        font-variant-numeric: tabular-nums;
+      }
+      .balance-sub {
+        margin-top: 6px;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 13px;
+      }
+
+      .quick {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .qbtn {
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.05);
+        padding: 12px 10px;
+        text-align: center;
+        cursor: pointer;
+        user-select: none;
+        transition: transform 0.14s ease, background 0.18s ease;
+      }
+      .qbtn:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .qicon {
+        width: 34px;
+        height: 34px;
+        border-radius: 14px;
+        margin: 0 auto 8px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, rgba(124, 136, 255, 0.7), rgba(42, 214, 255, 0.5));
+        color: #07101c;
+        font-weight: 900;
+      }
+      .qtxt {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.82);
+        letter-spacing: 0.1px;
+      }
+
+      .section-title {
+        margin: 16px 2px 10px;
+        font-weight: 850;
+        letter-spacing: 0.2px;
+      }
+
+      .list {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 18px;
+        overflow: hidden;
+      }
+      .item {
+        display: grid;
+        grid-template-columns: 44px 1fr auto;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .item.btnlike {
+        cursor: pointer;
+        user-select: none;
+        transition: transform 0.14s ease, background 0.18s ease;
+      }
+      .item.btnlike:hover {
+        background: rgba(255, 255, 255, 0.03);
+        transform: translateY(-1px);
+      }
+      .item.btnlike:active {
+        transform: translateY(0px) scale(0.995);
+      }
+      .item:last-child {
+        border-bottom: none;
+      }
+      .iicon {
+        width: 44px;
+        height: 44px;
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.86);
+        font-weight: 900;
+      }
+      .iicon.in {
+        background: rgba(46, 229, 157, 0.12);
+        border-color: rgba(46, 229, 157, 0.22);
+        color: rgba(46, 229, 157, 0.95);
+      }
+      .iicon.out {
+        background: rgba(255, 107, 107, 0.12);
+        border-color: rgba(255, 107, 107, 0.22);
+        color: rgba(255, 107, 107, 0.95);
+      }
+      .idesc {
+        min-width: 0;
+      }
+      .idesc .name {
+        font-weight: 750;
+        letter-spacing: 0.1px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .idesc .meta {
+        margin-top: 3px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .iamt {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        font-weight: 850;
+      }
+
+      .tabs {
+        padding: 10px 10px 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(10, 14, 30, 0.45);
+        backdrop-filter: blur(12px);
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+      }
+      .tab {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 16px;
+        padding: 9px 6px;
+        text-align: center;
+        cursor: pointer;
+        user-select: none;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 11px;
+        transition: transform 0.14s ease, background 0.18s ease, border-color 0.18s ease;
+      }
+      .tab:hover {
+        transform: translateY(-1px);
+      }
+      .tab.active {
+        background: rgba(124, 136, 255, 0.2);
+        border-color: rgba(124, 136, 255, 0.35);
+        color: rgba(255, 255, 255, 0.92);
+      }
+      .tab .ticon {
+        display: block;
+        font-weight: 900;
+        margin-bottom: 2px;
+        color: rgba(255, 255, 255, 0.88);
+      }
+
+      .form {
+        display: grid;
+        gap: 10px;
+      }
+      .smallnote {
+        margin-top: 10px;
+        color: rgba(255, 255, 255, 0.46);
+        font-size: 11px;
+        line-height: 1.35;
+        text-align: center;
+      }
+      .toast {
+        position: absolute;
+        left: 14px;
+        right: 14px;
+        bottom: 84px;
+        padding: 12px 12px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(10, 14, 30, 0.72);
+        backdrop-filter: blur(12px);
+        display: none;
+      }
+      .toast.show {
+        display: block;
+        animation: liftIn 0.35s ease both;
+      }
+
+      /* Receipt sheet */
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(8px);
+        display: none;
+        z-index: 50;
+      }
+      .overlay.show {
+        display: block;
+        animation: fadeIn 0.18s ease both;
+      }
+      .sheet {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 22px 22px 0 0;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(10, 14, 30, 0.82);
+        backdrop-filter: blur(14px);
+        box-shadow: 0 -30px 90px rgba(0, 0, 0, 0.7);
+        transform: translateY(12px);
+        animation: sheetUp 0.22s ease both;
+        padding: 14px;
+        z-index: 60;
+      }
+      .grab {
+        width: 56px;
+        height: 5px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.22);
+        margin: 4px auto 10px;
+      }
+      .sheet-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .sheet-title {
+        font-weight: 900;
+        letter-spacing: 0.2px;
+      }
+      .kv {
+        display: grid;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .kvrow {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .k {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .v {
+        font-weight: 850;
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+      }
+      .pill2 {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.86);
+        font-size: 12px;
+      }
+      .pill2.ok {
+        border-color: rgba(46, 229, 157, 0.22);
+        background: rgba(46, 229, 157, 0.12);
+        color: rgba(46, 229, 157, 0.95);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes sheetUp {
+        from {
+          transform: translateY(16px);
+          opacity: 0.6;
+        }
+        to {
+          transform: translateY(0px);
+          opacity: 1;
+        }
+      }
+
+      .chiprow {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--muted);
+        font-size: 12px;
+        user-select: none;
+      }
+
+      .btn {
+        appearance: none;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        padding: 11px 14px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: transform 0.14s ease, filter 0.18s ease, background 0.18s ease;
+      }
+      .btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.05);
+      }
+      .btn:active {
+        transform: translateY(0px) scale(0.99);
+      }
+      .btn.primary {
+        border: 1px solid rgba(124, 136, 255, 0.55);
+        background: linear-gradient(135deg, rgba(124, 136, 255, 0.95), rgba(42, 214, 255, 0.78));
+        color: #07101c;
+        font-weight: 800;
+      }
+      .btn.ghost {
+        background: transparent;
+      }
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .input {
+        width: 100%;
+        background: rgba(10, 14, 30, 0.55);
+        border: 1px solid var(--line);
+        color: var(--text);
+        padding: 12px 14px;
+        border-radius: 12px;
+        outline: none;
+        transition: transform 0.12s ease, border-color 0.2s ease, background 0.2s ease;
+      }
+      .input:focus {
+        border-color: rgba(124, 136, 255, 0.62);
+        background: rgba(10, 14, 30, 0.7);
+        transform: translateY(-1px);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+      .muted2 {
+        color: var(--muted2);
+      }
+      .good {
+        color: var(--good);
+      }
+      .bad {
+        color: var(--bad);
+      }
+
+      /* Views */
+      .login-wrap {
+        min-height: 100%;
+        display: grid;
+        place-items: center;
+        padding: 34px 0;
+      }
+      .login {
+        width: min(520px, calc(100% - 44px));
+        padding: 18px;
+      }
+      .login-inner {
+        padding: 18px;
+      }
+      .login h2 {
+        margin: 8px 0 4px;
+        letter-spacing: 0.2px;
+      }
+      .login p {
+        margin: 0 0 14px;
+      }
+      .error {
+        display: none;
+        margin-top: 10px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 107, 107, 0.35);
+        background: rgba(255, 107, 107, 0.12);
+        color: rgba(255, 255, 255, 0.88);
+        font-size: 13px;
+      }
+      .error.show {
+        display: block;
+        animation: shake 0.35s ease both;
+      }
+
+      /* Dashboard */
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+      .stat {
+        padding: 16px;
+      }
+      .stat h4 {
+        margin: 0 0 6px;
+        font-weight: 650;
+        color: rgba(255, 255, 255, 0.86);
+      }
+      .balance {
+        font-size: 36px;
+        font-weight: 850;
+        letter-spacing: 0.4px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .section {
+        padding: 16px;
+      }
+      .section h3 {
+        margin: 0 0 12px;
+        font-weight: 750;
+        letter-spacing: 0.2px;
+      }
+
+      .filters {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .pill {
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.05);
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 13px;
+        user-select: none;
+        transition: transform 0.14s ease, background 0.18s ease;
+      }
+      .pill:hover {
+        transform: translateY(-1px);
+      }
+      .pill.active {
+        background: rgba(124, 136, 255, 0.22);
+        border-color: rgba(124, 136, 255, 0.35);
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+      }
+      .table th,
+      .table td {
+        padding: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .table th {
+        text-align: left;
+        font-weight: 650;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.04);
+        font-size: 12px;
+        letter-spacing: 0.2px;
+        text-transform: uppercase;
+      }
+      .table tr:hover td {
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .pager {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: flex-end;
+        margin-top: 12px;
+      }
+
+      .footer {
+        opacity: 0.78;
+        padding: 14px 0 4px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .lift-in {
+        animation: liftIn 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      }
+
+      @keyframes liftIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px) scale(0.99);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      @keyframes float {
+        from {
+          transform: translate3d(0, 0, 0) scale(1);
+          opacity: 0.9;
+        }
+        to {
+          transform: translate3d(0, -10px, 0) scale(1.02);
+          opacity: 1;
+        }
+      }
+      @keyframes shake {
+        0% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-6px);
+        }
+        50% {
+          transform: translateX(6px);
+        }
+        75% {
+          transform: translateX(-4px);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+
+      @media (max-width: 980px) {
+        .row.cols-2 {
+          grid-template-columns: 1fr;
+        }
+        .row.cols-3 {
+          grid-template-columns: 1fr;
+        }
+        .chiprow {
+          justify-content: flex-start;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="bg" aria-hidden="true"></div>
+    <div id="app"></div>
+
+    <template id="login-view">
+      <div class="phone-wrap">
+        <div class="phone lift-in">
+          <div class="app">
+            <div class="appbar">
+              <div class="left">
+                <div class="avatar" aria-hidden="true"></div>
+                <div class="hello">
+                  <div class="greet">Welcome back</div>
+                  <div class="small">Sign in to continue</div>
+                </div>
+              </div>
+              <div class="iconbtn" aria-hidden="true">⋯</div>
+            </div>
+
+            <div class="pages">
+              <div class="card" style="padding: 16px; border-radius: 22px">
+                <div class="brand" style="margin-bottom: 10px">
+                  <div class="logo" aria-hidden="true"></div>
+                  <div>
+                    <div class="title">G02bank</div>
+                    <div class="subtitle">Secure access</div>
+                  </div>
+                </div>
+
+                <div class="row" style="gap: 10px">
+                  <input id="email" class="input" placeholder="Email" autocomplete="username" />
+                  <input
+                    id="password"
+                    class="input"
+                    type="password"
+                    placeholder="Password"
+                    autocomplete="current-password"
+                  />
+                  <button class="btn primary" id="loginBtn" type="button">Continue</button>
+                </div>
+
+                <div class="error" id="loginError" role="alert">Incorrect email or password.</div>
+              </div>
+
+              <div class="smallnote">Use your G02bank credentials to access your account.</div>
+            </div>
+
+            <div class="tabs" aria-hidden="true">
+              <div class="tab active"><span class="ticon">⌂</span>Home</div>
+              <div class="tab"><span class="ticon">▦</span>Cards</div>
+              <div class="tab"><span class="ticon">⇄</span>Pay</div>
+              <div class="tab"><span class="ticon">≋</span>Activity</div>
+              <div class="tab"><span class="ticon">☺</span>Profile</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template id="dashboard-view">
+      <div class="phone-wrap">
+        <div class="phone lift-in">
+          <div class="app">
+            <div class="appbar">
+              <div class="left">
+                <div class="avatar" aria-hidden="true"></div>
+                <div class="hello">
+                  <div class="greet">Hi, Lance</div>
+                  <div class="small">Available balance</div>
+                </div>
+              </div>
+              <button class="iconbtn" id="logout" type="button" title="Log out">⎋</button>
+            </div>
+
+            <div class="pages">
+              <div class="page active" data-page="home">
+                <div class="balance-card">
+                  <div class="balance-label">Current balance</div>
+                  <div class="balance-amt" id="balance"></div>
+                  <div class="balance-sub">USD • Updated just now</div>
+                </div>
+
+                <div class="quick">
+                  <div class="qbtn" data-action="send"><div class="qicon">⇢</div><div class="qtxt">Send</div></div>
+                  <div class="qbtn" data-action="request"><div class="qicon">⇠</div><div class="qtxt">Request</div></div>
+                  <div class="qbtn" data-action="bills"><div class="qicon">▤</div><div class="qtxt">Bills</div></div>
+                  <div class="qbtn" data-action="topup"><div class="qicon">＋</div><div class="qtxt">Top up</div></div>
+                </div>
+
+                <div class="section-title">Recent activity</div>
+                <div class="list" id="recentList"></div>
+              </div>
+
+              <div class="page" data-page="cards">
+                <div class="section-title">Cards</div>
+                <div class="balance-card" style="padding: 18px">
+                  <div class="balance-label">Virtual card</div>
+                  <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center">
+                    <div style="font-weight: 900; letter-spacing: 0.6px">•••• 4821</div>
+                    <div class="chip">VISA</div>
+                  </div>
+                  <div class="balance-sub" style="margin-top: 12px">Card controls</div>
+                  <div class="quick" style="grid-template-columns: repeat(2, 1fr); margin-top: 10px">
+                    <div class="qbtn" data-action="freeze"><div class="qicon">⛔</div><div class="qtxt">Freeze</div></div>
+                    <div class="qbtn" data-action="limits"><div class="qicon">⚑</div><div class="qtxt">Limits</div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="page" data-page="pay">
+                <div class="section-title">Send money</div>
+                <div class="card" style="padding: 16px; border-radius: 22px">
+                  <div class="form">
+                    <input class="input" id="payTo" placeholder="Recipient (name or @handle)" />
+                    <input class="input" id="payAmount" placeholder="Amount (USD)" inputmode="decimal" />
+                    <input class="input" id="payNote" placeholder="Note (optional)" />
+                    <button class="btn primary" id="payBtn" type="button">Send</button>
+                  </div>
+                </div>
+                <div class="smallnote">Transfers shown here.</div>
+              </div>
+
+              <div class="page" data-page="activity">
+                <div class="section-title">Activity</div>
+                <div class="filters" style="margin-bottom: 12px">
+                  <span class="pill active" data-filter="all">All</span>
+                  <span class="pill" data-filter="in">Credits</span>
+                  <span class="pill" data-filter="out">Debits</span>
+                  <input class="input" id="search" placeholder="Search" />
+                </div>
+                <div class="list" id="activityList"></div>
+                <div class="pager">
+                  <button class="btn" id="prev" type="button">Prev</button>
+                  <span class="muted" id="pageInfo"></span>
+                  <button class="btn" id="next" type="button">Next</button>
+                </div>
+              </div>
+
+              <div class="page" data-page="profile">
+                <div class="section-title">Profile</div>
+                <div class="card" style="padding: 16px; border-radius: 22px">
+                  <div style="display: flex; gap: 12px; align-items: center">
+                    <div class="avatar" aria-hidden="true"></div>
+                    <div style="min-width: 0">
+                      <div style="font-weight: 900">Lance Hughes</div>
+                      <div class="muted" style="font-size: 12px; margin-top: 2px">lancehughes@gmail.com</div>
+                    </div>
+                  </div>
+                  <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 14px 0"></div>
+                  <div class="muted" style="line-height: 1.5">
+                    <div><strong style="color: rgba(255, 255, 255, 0.88)">Notifications</strong>: Enabled</div>
+                    <div style="margin-top: 8px">
+                      <strong style="color: rgba(255, 255, 255, 0.88)">Security</strong>: PIN required
+                    </div>
+                    <div style="margin-top: 8px"><strong style="color: rgba(255, 255, 255, 0.88)">Theme</strong>: Dark</div>
+                  </div>
+                </div>
+                <div class="smallnote">Manage your G02bank profile and security settings.</div>
+              </div>
+            </div>
+
+            <div class="tabs" id="tabs">
+              <button class="tab active" type="button" data-tab="home"><span class="ticon">⌂</span>Home</button>
+              <button class="tab" type="button" data-tab="cards"><span class="ticon">▦</span>Cards</button>
+              <button class="tab" type="button" data-tab="pay"><span class="ticon">⇄</span>Pay</button>
+              <button class="tab" type="button" data-tab="activity"><span class="ticon">≋</span>Activity</button>
+              <button class="tab" type="button" data-tab="profile"><span class="ticon">☺</span>Profile</button>
+            </div>
+
+            <div class="toast" id="toast"></div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <script>
+      const app = document.getElementById("app");
+      const fmt = (n) => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
+
+      // Demo login gate (client-side only; not secure)
+      const DEMO_EMAIL = "Fafoconstuction23@gmail.com";
+      const DEMO_PASSWORD = "Lancalot78!";
+
+      // --- Deterministic mock data generation (reconciles exactly) ---
+      // Account started receiving funds in Jan 2025.
+      const TARGET_BALANCE = 47880.75;
+      const START = new Date("2025-01-01");
+      // Use "yesterday" as the effective end of history to keep today for UI actions.
+      const END = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const RNG = ((seed) => () => (seed = (seed * 16807) % 2147483647) / 2147483647)(123456);
+
+      function generateTransactions() {
+        const tx = [];
+        let id = 1;
+        let inflow = 0,
+          outflow = 0;
+        const merchants = [
+          "Payroll",
+          "Client Transfer",
+          "Invoice Settlement",
+          "Utilities",
+          "Card Purchase",
+          "Wire Transfer",
+          "Refund",
+          "Subscription"
+        ];
+
+        // Keep the last 2 days reserved for fixed inflows.
+        const FIXED_2 = 2 * 86400000;
+        const effectiveEnd = new Date(Math.max(START.getTime(), END.getTime() - FIXED_2));
+        const days = Math.max(1, Math.floor((effectiveEnd - START) / 86400000));
+
+        // Smaller, more realistic activity count for a mobile banking history
+        const count = 160;
+        for (let i = 0; i < count; i++) {
+          const d = new Date(START.getTime() + Math.floor(RNG() * days) * 86400000);
+          const isIn = RNG() > 0.46;
+          // Regular activity between $20 and $200
+          const amt = Math.round((RNG() * 180 + 20) * 100) / 100;
+          if (isIn) inflow += amt;
+          else outflow += amt;
+          tx.push({
+            id: id++,
+            date: d,
+            type: isIn ? "in" : "out",
+            amount: amt,
+            desc: merchants[Math.floor(RNG() * merchants.length)]
+          });
+        }
+
+        // Fixed inflows
+        // - $12,000 credit on Feb 2, 2025
+        // - $15,960 credit (keep as last major inflow)
+        const febInflow = 12000.0;
+        const febDate = new Date("2025-02-02T10:15:00");
+        inflow += febInflow;
+        tx.push({ id: id++, date: febDate, type: "in", amount: febInflow, desc: "Incoming Transfer" });
+
+        const lastInflow = 15960.0;
+        // Put the big inflow earlier in the day, then add smaller transactions after it.
+        const d1 = new Date(END.getTime());
+        d1.setHours(9, 0, 0, 0); // yesterday 09:00
+        inflow += lastInflow;
+        tx.push({ id: id++, date: d1, type: "in", amount: lastInflow, desc: "Salary Payment" });
+
+        // Scatter smaller transactions AFTER the 15,960 (both receiving and spending)
+        const post = [
+          { mins: 18, type: "out", amount: 58.42, desc: "Card Purchase" },
+          { mins: 47, type: "out", amount: 123.9, desc: "Utilities" },
+          { mins: 83, type: "in", amount: 75.0, desc: "Refund" },
+          { mins: 126, type: "out", amount: 41.35, desc: "Subscription" },
+          { mins: 205, type: "out", amount: 199.99, desc: "Card Purchase" },
+          { mins: 320, type: "in", amount: 120.0, desc: "Client Transfer" },
+          { mins: 540, type: "out", amount: 88.6, desc: "Card Purchase" }
+        ];
+        for (const p of post) {
+          const dt = new Date(d1.getTime() + p.mins * 60 * 1000);
+          if (p.type === "in") inflow += p.amount;
+          else outflow += p.amount;
+          tx.push({ id: id++, date: dt, type: p.type, amount: p.amount, desc: p.desc });
+        }
+
+        // Reconcile exactly to target balance with an adjustment BEFORE the big inflow,
+        // so the 15,960 remains the last major inflow and we keep activity after it.
+        const currentBalance = Math.round((inflow - outflow) * 100) / 100;
+        const needed = Math.round((TARGET_BALANCE - currentBalance) * 100) / 100;
+        if (needed !== 0) {
+          const isIn = needed > 0;
+          const amt = Math.abs(needed);
+          const adjDate = new Date(d1.getTime() - 30 * 60 * 1000); // 30 mins before 15,960
+          if (isIn) inflow += amt;
+          else outflow += amt;
+          tx.push({ id: id++, date: adjDate, type: isIn ? "in" : "out", amount: amt, desc: "Balance Adjustment" });
+        }
+
+        tx.sort((a, b) => b.date - a.date);
+        return { tx, inflow, outflow };
+      }
+
+      const data = generateTransactions();
+
+      // Tiny single-file "component" system
+      const state = {
+        route: "login", // 'login' | 'app'
+        tab: "home",
+        page: 1,
+        perPage: 10,
+        filter: "all",
+        q: "",
+        login: { email: "", password: "", error: false },
+        pay: { to: "", amount: "", note: "" },
+        toast: "",
+        receipt: { open: false, txId: null }
+      };
+
+      function setState(patch) {
+        Object.assign(state, patch);
+        render();
+      }
+
+      function setDeep(path, value) {
+        const parts = path.split(".");
+        let cur = state;
+        for (let i = 0; i < parts.length - 1; i++) cur = cur[parts[i]];
+        cur[parts[parts.length - 1]] = value;
+      }
+
+      function toast(msg) {
+        state.toast = msg;
+        render();
+        window.clearTimeout(toast._t);
+        toast._t = window.setTimeout(() => {
+          state.toast = "";
+          render();
+        }, 1800);
+      }
+
+      function cls(on, a, b = "") {
+        return on ? a : b;
+      }
+
+      function TabButton(id, icon, label) {
+        return `
+          <button class="tab ${cls(state.tab === id, "active")}" type="button" data-action="tab" data-tab="${id}">
+            <span class="ticon">${icon}</span>${label}
+          </button>`;
+      }
+
+      function TxItem(t) {
+        const sign = t.type === "in" ? "+" : "−";
+        const icon = t.type === "in" ? "↙" : "↗";
+        const cls2 = t.type === "in" ? "in" : "out";
+        const date = t.date.toISOString().slice(0, 10);
+        return `
+          <div class="item btnlike" role="button" tabindex="0" data-action="tx" data-txid="${t.id}">
+            <div class="iicon ${cls2}">${icon}</div>
+            <div class="idesc">
+              <div class="name">${t.desc}</div>
+              <div class="meta">${date} • ${t.type === "in" ? "Credit" : "Debit"}</div>
+            </div>
+            <div class="iamt ${t.type === "in" ? "good" : "bad"}">${sign}${fmt(t.amount)}</div>
+          </div>`;
+      }
+
+      function LoginView() {
+        const { email, password, error } = state.login;
+        return `
+          <div class="phone-wrap">
+            <div class="phone lift-in">
+              <div class="app">
+                <div class="brandbar">
+                  <div class="iconbtn" aria-hidden="true">⌂</div>
+                  <div class="center">
+                    <img class="brandimg" src="img/1.jfif" alt="G02bank" />
+                  </div>
+                  <div class="iconbtn" aria-hidden="true">☺</div>
+                </div>
+
+                <div class="pages">
+                  <div class="card" style="padding: 16px; border-radius: 22px">
+                    <div class="brand" style="margin-bottom: 10px">
+                      <div class="logo" aria-hidden="true"></div>
+                      <div>
+                        <div class="title">G02bank</div>
+                        <div class="subtitle">Secure access</div>
+                      </div>
+                    </div>
+
+                    <div class="row" style="gap: 10px">
+                      <input class="input" name="email" placeholder="Email" autocomplete="username" value="${escapeHtml(
+                        email
+                      )}" />
+                      <input class="input" name="password" type="password" placeholder="Password" autocomplete="current-password" value="${escapeHtml(
+                        password
+                      )}" />
+                      <button class="btn primary" data-action="login" type="button">Continue</button>
+                    </div>
+
+                    <div class="error ${cls(error, "show")}" role="alert">Incorrect email or password.</div>
+                  </div>
+
+                  <div class="smallnote">Forgot your password? Contact G02bank support.</div>
+                </div>
+
+                <div class="tabs" aria-hidden="true">
+                  <div class="tab active"><span class="ticon">⌂</span>Home</div>
+                  <div class="tab"><span class="ticon">▦</span>Cards</div>
+                  <div class="tab"><span class="ticon">⇄</span>Pay</div>
+                  <div class="tab"><span class="ticon">≋</span>Activity</div>
+                  <div class="tab"><span class="ticon">☺</span>Profile</div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      }
+
+      function HomePage() {
+        const recent = data.tx.slice(0, 6);
+        return `
+          <div class="page ${cls(state.tab === "home", "active")}" data-page="home">
+            <div class="card" style="padding: 14px; border-radius: 22px">
+              <div class="muted" style="font-size: 12px">Bank account •••• 4578</div>
+              <div style="display:flex; justify-content:space-between; gap:12px; align-items:flex-start; margin-top:10px">
+                <div>
+                  <div style="font-weight:950; font-size:28px; letter-spacing:.2px; font-variant-numeric:tabular-nums">
+                    ${fmt(TARGET_BALANCE)}
+                  </div>
+                  <div class="muted" style="font-size:12px; margin-top:2px">Available balance</div>
+                </div>
+                <div class="chip">USD</div>
+              </div>
+
+              <button class="btn primary" type="button" data-action="quick" data-quick="deposit" style="width:100%; margin-top:12px">
+                Add money
+              </button>
+
+              <div style="margin-top:12px; display:flex; align-items:center; justify-content:space-between">
+                <div class="muted" style="font-size:12px">Recent transactions</div>
+                <button class="btn" type="button" data-action="tab" data-tab="activity">View</button>
+              </div>
+
+              <div class="list" style="margin-top:10px">${recent.map(TxItem).join("")}</div>
+            </div>
+
+          </div>`;
+      }
+
+      function CardsPage() {
+        return `
+          <div class="page ${cls(state.tab === "cards", "active")}" data-page="cards">
+            <div class="section-title">Cards</div>
+            <div class="balance-card" style="padding: 18px">
+              <div class="balance-label">Virtual card</div>
+              <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center">
+                <div style="font-weight: 900; letter-spacing: 0.6px">•••• 4821</div>
+                <div class="chip">VISA</div>
+              </div>
+              <div class="balance-sub" style="margin-top: 12px">Card controls</div>
+              <div class="quick" style="grid-template-columns: repeat(2, 1fr); margin-top: 10px">
+                <div class="qbtn" data-action="quick" data-quick="freeze"><div class="qicon">⛔</div><div class="qtxt">Freeze</div></div>
+                <div class="qbtn" data-action="quick" data-quick="limits"><div class="qicon">⚑</div><div class="qtxt">Limits</div></div>
+              </div>
+            </div>
+          </div>`;
+      }
+
+      function PayPage() {
+        const p = state.pay;
+        return `
+          <div class="page ${cls(state.tab === "pay", "active")}" data-page="pay">
+            <div class="section-title">Send money</div>
+            <div class="card" style="padding: 16px; border-radius: 22px">
+              <div class="form">
+                <input class="input" name="payTo" placeholder="Recipient (name or @handle)" value="${escapeHtml(p.to)}" />
+                <input class="input" name="payAmount" placeholder="Amount (USD)" inputmode="decimal" value="${escapeHtml(
+                  p.amount
+                )}" />
+                <input class="input" name="payNote" placeholder="Note (optional)" value="${escapeHtml(p.note)}" />
+                <button class="btn primary" data-action="pay" type="button">Send</button>
+              </div>
+            </div>
+            <div class="smallnote">Transfers shown here are simulated for UI practice.</div>
+          </div>`;
+      }
+
+      function DepositPage() {
+        const bankName = "G02bank";
+        const accountName = "Lance Hughes";
+        const accountNumber = "0274019836";
+        return `
+          <div class="page ${cls(state.tab === "deposit", "active")}" data-page="deposit">
+            <div class="section-title">Deposit</div>
+            <div class="card" style="padding: 16px; border-radius: 22px">
+              <div class="muted" style="font-size: 12px; margin-bottom: 10px">
+                Use the details below to deposit into your account.
+              </div>
+              <div class="kv">
+                <div class="kvrow">
+                  <div class="k">Bank</div>
+                  <div class="v" style="display:flex; gap:8px; align-items:center">
+                    <span>${escapeHtml(bankName)}</span>
+                    <button class="btn" type="button" data-action="copy" data-copy="${escapeHtml(bankName)}">Copy</button>
+                  </div>
+                </div>
+                <div class="kvrow">
+                  <div class="k">Account name</div>
+                  <div class="v" style="display:flex; gap:8px; align-items:center">
+                    <span>${escapeHtml(accountName)}</span>
+                    <button class="btn" type="button" data-action="copy" data-copy="${escapeHtml(accountName)}">Copy</button>
+                  </div>
+                </div>
+                <div class="kvrow">
+                  <div class="k">Account number</div>
+                  <div class="v" style="display:flex; gap:8px; align-items:center">
+                    <span>${escapeHtml(accountNumber)}</span>
+                    <button class="btn" type="button" data-action="copy" data-copy="${escapeHtml(accountNumber)}">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="smallnote">Mock deposit details for UI practice.</div>
+          </div>`;
+      }
+
+      function ActivityPage() {
+        let rows = data.tx
+          .filter((t) => state.filter === "all" || t.type === state.filter)
+          .filter((t) => !state.q || t.desc.toLowerCase().includes(state.q));
+        const pages = Math.max(1, Math.ceil(rows.length / state.perPage));
+        const page = Math.min(state.page, pages);
+        const slice = rows.slice((page - 1) * state.perPage, page * state.perPage);
+
+        return `
+          <div class="page ${cls(state.tab === "activity", "active")}" data-page="activity">
+            <div class="section-title">Activity</div>
+            <div class="filters" style="margin-bottom: 12px">
+              <span class="pill ${cls(state.filter === "all", "active")}" data-action="filter" data-filter="all">All</span>
+              <span class="pill ${cls(state.filter === "in", "active")}" data-action="filter" data-filter="in">Credits</span>
+              <span class="pill ${cls(state.filter === "out", "active")}" data-action="filter" data-filter="out">Debits</span>
+              <input class="input" name="search" placeholder="Search" value="${escapeHtml(state.q)}" />
+            </div>
+            <div class="list">${slice.map(TxItem).join("") || `<div class="item"><div class="idesc"><div class="name">No results</div><div class="meta">Try a different search</div></div></div>`}</div>
+            <div class="pager">
+              <button class="btn" data-action="page" data-dir="-1" type="button">Prev</button>
+              <span class="muted">Page ${page} / ${pages}</span>
+              <button class="btn" data-action="page" data-dir="1" type="button">Next</button>
+            </div>
+          </div>`;
+      }
+
+      function ProfilePage() {
+        return `
+          <div class="page ${cls(state.tab === "profile", "active")}" data-page="profile">
+            <div class="section-title">Profile</div>
+            <div class="card" style="padding: 16px; border-radius: 22px">
+              <div style="display: flex; gap: 12px; align-items: center">
+                <div class="avatar" aria-hidden="true"></div>
+                <div style="min-width: 0">
+                  <div style="font-weight: 900">Lance Hughes</div>
+                  <div class="muted" style="font-size: 12px; margin-top: 2px">lance.hughes@example.com</div>
+                </div>
+              </div>
+              <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 14px 0"></div>
+              <div class="muted" style="line-height: 1.5">
+                <div><strong style="color: rgba(255, 255, 255, 0.88)">Phone</strong>: (843) 534-1106</div>
+                <div style="margin-top: 8px"><strong style="color: rgba(255, 255, 255, 0.88)">SSN</strong>: 324‑84‑2141</div>
+                <div style="margin-top: 8px"><strong style="color: rgba(255, 255, 255, 0.88)">Notifications</strong>: Enabled</div>
+                <div style="margin-top: 8px"><strong style="color: rgba(255, 255, 255, 0.88)">Security</strong>: PIN required</div>
+                <div style="margin-top: 8px"><strong style="color: rgba(255, 255, 255, 0.88)">Theme</strong>: Dark</div>
+              </div>
+            </div>
+            <div class="smallnote">Review and update your profile information.</div>
+          </div>`;
+      }
+
+      function DashboardView() {
+        const tx = data.tx.find((x) => x.id === state.receipt.txId) || null;
+        const reference = tx ? `G02-${String(tx.id).padStart(6, "0")}-${tx.date.getFullYear()}` : "";
+        const status = tx ? "Successful" : "";
+        const direction = tx ? (tx.type === "in" ? "Credit" : "Debit") : "";
+        const amountLine = tx ? `${tx.type === "in" ? "+" : "−"}${fmt(tx.amount)}` : "";
+        const when = tx
+          ? tx.date.toLocaleString("en-GB", { year: "numeric", month: "short", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+          : "";
+
+        return `
+          <div class="phone-wrap">
+            <div class="phone lift-in">
+              <div class="app">
+                <div class="brandbar">
+                  <button class="iconbtn" type="button" data-action="tab" data-tab="home" title="Home">⌂</button>
+                  <div class="center">
+                    <img class="brandimg" src="img/1.jfif" alt="G02bank" />
+                  </div>
+                  <button class="iconbtn" data-action="logout" type="button" title="Log out">⎋</button>
+                </div>
+
+                <div class="pages">
+                  ${HomePage()}
+                  ${CardsPage()}
+                  ${PayPage()}
+                  ${DepositPage()}
+                  ${ActivityPage()}
+                  ${ProfilePage()}
+                </div>
+
+                <div class="tabs" id="tabs">
+                  ${TabButton("home", "⌂", "Home")}
+                  ${TabButton("cards", "▦", "Cards")}
+                  ${TabButton("pay", "⇄", "Pay")}
+                  ${TabButton("activity", "≋", "Activity")}
+                  ${TabButton("profile", "☺", "Profile")}
+                </div>
+
+                <div class="toast ${cls(!!state.toast, "show")}" id="toast">${escapeHtml(state.toast)}</div>
+
+                <div class="overlay ${cls(state.receipt.open, "show")}" data-action="receipt-close" aria-hidden="true"></div>
+                ${
+                  state.receipt.open && tx
+                    ? `
+                  <div class="sheet" role="dialog" aria-modal="true" aria-label="Transaction receipt">
+                    <div class="grab" aria-hidden="true"></div>
+                    <div class="sheet-head">
+                      <div>
+                        <div class="sheet-title">Transaction receipt</div>
+                        <div class="muted" style="font-size:12px; margin-top:2px">${escapeHtml(reference)}</div>
+                      </div>
+                      <button class="iconbtn" type="button" data-action="receipt-close" title="Close">×</button>
+                    </div>
+
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
+                      <div class="pill2 ok">● ${escapeHtml(status)}</div>
+                      <div class="${tx.type === "in" ? "good" : "bad"}" style="font-weight:950; font-size:18px; letter-spacing:.2px">
+                        ${escapeHtml(amountLine)}
+                      </div>
+                    </div>
+
+                    <div class="kv">
+                      <div class="kvrow"><div class="k">Type</div><div class="v">${escapeHtml(direction)}</div></div>
+                      <div class="kvrow"><div class="k">Description</div><div class="v" style="max-width:55%">${escapeHtml(tx.desc)}</div></div>
+                      <div class="kvrow"><div class="k">Date</div><div class="v">${escapeHtml(when)}</div></div>
+                      <div class="kvrow"><div class="k">Reference</div><div class="v">${escapeHtml(reference)}</div></div>
+                    </div>
+
+                    <div class="smallnote" style="margin-top:12px">
+                      This receipt is generated for UI practice.
+                    </div>
+                  </div>
+                `
+                    : ""
+                }
+              </div>
+            </div>
+          </div>`;
+      }
+
+      function App() {
+        if (state.route === "login") return LoginView();
+        return DashboardView();
+      }
+
+      function render() {
+        app.innerHTML = App();
+        const firstInput = app.querySelector('input[name="email"]');
+        if (state.route === "login" && firstInput && document.activeElement === document.body) firstInput.focus();
+      }
+
+      function escapeHtml(s) {
+        return String(s ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      // Single event listener (event delegation)
+      app.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-action]");
+        if (!btn) return;
+        const action = btn.dataset.action;
+
+        if (action === "login") {
+          const typedEmail = state.login.email.trim().toLowerCase();
+          const typedPassword = state.login.password.trim();
+          const ok = typedEmail === DEMO_EMAIL.toLowerCase() && typedPassword === DEMO_PASSWORD;
+          if (!ok) {
+            state.login.error = true;
+            render();
+            return;
+          }
+          state.login.error = false;
+          state.route = "app";
+          state.tab = "home";
+          render();
+          return;
+        }
+
+        if (action === "logout") {
+          state.route = "login";
+          state.login.password = "";
+          state.login.error = false;
+          render();
+          return;
+        }
+
+        if (action === "tab") {
+          state.tab = btn.dataset.tab;
+          render();
+          return;
+        }
+
+        if (action === "quick") {
+          const q = btn.dataset.quick;
+          if (q === "send") {
+            state.tab = "pay";
+            render();
+            return;
+          }
+          if (q === "request") return toast("Request link created");
+          if (q === "bills") return toast("Bills center opened");
+          if (q === "deposit") {
+            state.tab = "deposit";
+            render();
+            return;
+          }
+          if (q === "freeze") return toast("Card frozen (simulated)");
+          if (q === "limits") return toast("Limits updated (simulated)");
+          return toast("Action completed");
+        }
+
+        if (action === "filter") {
+          state.filter = btn.dataset.filter;
+          state.page = 1;
+          render();
+          return;
+        }
+
+        if (action === "page") {
+          const dir = Number(btn.dataset.dir || "0");
+          state.page = Math.max(1, state.page + dir);
+          render();
+          return;
+        }
+
+        if (action === "pay") {
+          const to = state.pay.to.trim();
+          const amt = Number(state.pay.amount.trim());
+          if (!to || !Number.isFinite(amt) || amt <= 0) return toast("Enter recipient and amount");
+          state.pay.amount = "";
+          state.pay.note = "";
+          render();
+          return toast(`Sent ${fmt(amt)} to ${to}`);
+        }
+
+        if (action === "tx") {
+          const id = Number(btn.dataset.txid);
+          if (!Number.isFinite(id)) return;
+          state.receipt.open = true;
+          state.receipt.txId = id;
+          render();
+          return;
+        }
+
+        if (action === "receipt-close") {
+          state.receipt.open = false;
+          render();
+          return;
+        }
+
+        if (action === "copy") {
+          const text = btn.dataset.copy ?? "";
+          if (!text) return;
+          if (navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText(text).then(
+              () => toast("Copied"),
+              () => toast("Copy failed")
+            );
+          } else {
+            toast("Copy not supported");
+          }
+          return;
+        }
+      });
+
+      app.addEventListener("input", (e) => {
+        const el = e.target;
+        if (!(el instanceof HTMLInputElement)) return;
+        const name = el.getAttribute("name");
+        if (!name) return;
+
+        if (state.route === "login") {
+          if (name === "email") state.login.email = el.value;
+          if (name === "password") state.login.password = el.value;
+          state.login.error = false;
+          // Do NOT re-render on each keystroke while typing login fields,
+          // otherwise the cursor will jump. We only render again on submit.
+          return;
+        }
+
+        if (name === "search") {
+          state.q = el.value.toLowerCase();
+          state.page = 1;
+          return render();
+        }
+
+        if (name === "payTo") state.pay.to = el.value;
+        if (name === "payAmount") state.pay.amount = el.value;
+        if (name === "payNote") state.pay.note = el.value;
+      });
+
+      app.addEventListener("keydown", (e) => {
+        if (state.route !== "login") return;
+        if (e.key !== "Enter") return;
+        const focused = document.activeElement;
+        if (!(focused instanceof HTMLInputElement)) return;
+        if (focused.getAttribute("name") !== "password") return;
+        const btn = app.querySelector('[data-action="login"]');
+        btn?.click();
+      });
+
+      render();
+    </script>
+  </body>
+</html>
